@@ -24,13 +24,14 @@ router.get('/', function(req, res, next) {
 	if(message = "added"){
 		message = "Task added successfully!";
 	}
-	var selectQuery = "SELECT * FROM tasks";
+	var selectQuery = "SELECT * FROM tasks ORDER BY taskDate,taskName";
+
 	connection.query(selectQuery, (error,results)=>{
 		res.render('index', { 
 			message: message, 
 			taskArray: results
 		});
-	})
+	});
 	
 });
 
@@ -42,13 +43,50 @@ router.post('/addItem', (req,res)=>{
 	// We know what they submitted from the form. It comes to this route inside req.body.NAMEOFFIELD.
 	// Now we need to insert it into MySQL.
 	var insertQuery = "INSERT INTO tasks (taskName, taskDate) VALUES ('"+newTask+"','"+dueDate+"')"
+
 	// res.send(insertQuery);
 	connection.query(insertQuery, (error,results)=>{
 		if(error) throw error;
 		res.redirect('/?msg=added');
-	})
-
+	});
 
 });
 
+router.get('/delete/:id', (req,res)=>{
+	var idToDelete = req.params.id;
+	var deleteQuery = "DELETE from tasks WHERE id = " + idToDelete;
+	connection.query(deleteQuery, (error,results)=>{
+		res.redirect('/?msg=deleted');
+	});
+	// res.send(idToDelete);
+});
+
+// Make a new route to handle the edit page. It will be /edit/IDTOEDIT
+router.get('/edit/:id',(req,res)=>{
+	var idToEdit = req.params.id;
+	var selectQuery = "SELECT * FROM tasks WHERE id = ?";
+	connection.query(selectQuery, [idToEdit], (error,results)=>{
+		res.render('edit',{
+			task: results[0]
+		});
+		// res.json(results);
+
+	});
+});
+
+
+
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
