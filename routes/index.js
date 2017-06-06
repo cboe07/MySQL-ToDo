@@ -21,8 +21,12 @@ connection.connect();
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	var message = req.query.msg;          //Looks for msg in query
-	if(message = "added"){
+	if(message == "added"){
 		message = "Task added successfully!";
+	}else if(message == "updated"){
+		message = "Task updated successfully";
+	}else if(message == "deleted"){
+		message = "Task deleted";
 	}
 	var selectQuery = "SELECT * FROM tasks ORDER BY taskDate,taskName";
 
@@ -72,6 +76,17 @@ router.get('/edit/:id',(req,res)=>{
 		// res.json(results);
 
 	});
+});
+
+router.post('/editItem',(req,res)=>{
+	// res.json(req.body);
+	var newTask = req.body.newTask;
+	var newTaskDate = req.body.newTaskDate;
+	var idToEdit = req.query.id;
+	var updateQuery = "UPDATE tasks SET taskName = ?, taskDate = ? WHERE id = ?";
+	connection.query(updateQuery, [newTask,newTaskDate,idToEdit], (error,result)=>{
+		res.redirect('/?msg=updated');
+	})
 });
 
 
